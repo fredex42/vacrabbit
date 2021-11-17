@@ -17,12 +17,15 @@ def get_filename(method:pika.spec.Basic.Deliver, properties:pika.spec.BasicPrope
         return method.routing_key + "_" + str(method.delivery_tag) + ".json"
 
 
-def received(ch:pika.channel.Channel, method:pika.spec.Basic.Deliver, properties:pika.spec.BasicProperties, body:bytes):
+def received(ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, properties: pika.spec.BasicProperties, body: bytes):
     filename = get_filename(method, properties)
     logger.info("Writing message with id {0} from exchange {1} with delivery tag {2} to {3}".format(properties.message_id, method.exchange, method.delivery_tag, filename))
     with open(filename, "wb") as f:
         f.write(body)
-    ch.basic_nack(method.delivery_tag, requeue=True)
+    if args.requeue:
+        ch.basic_nack(method.delivery_tag, requeue=True)
+    else:
+        ch.basic_ack(method.delivery_tag)
 
 
 if __name__ == "__main__":
