@@ -31,7 +31,7 @@ def process_file(path: str, filename: str):
         logger.info("Not pushing messages, remove --dry-run to do this")
     else:
         logger.info("Pushing to {0} with roting key {1}".format(args.exchange, routing_key))
-        props = pika.BasicProperties(content_type="application/json",content_encoding="UTF-8", message_id=message_id)
+        props = pika.BasicProperties(content_type="application/json",content_encoding="UTF-8", message_id=message_id, delivery_mode=2)
         channel.basic_publish(args.exchange, routing_key, content, props)
 
 
